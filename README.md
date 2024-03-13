@@ -9,7 +9,7 @@ python addresource.py [OPTIONS] FORMULA_PATH PACKAGE
 
 ## Arguments:
 - `FORMULA_PATH`: The path to the Homebrew formula file.
-- `PACKAGE`: The name of the package for which to add a resource block.
+- `PACKAGE`: The name and optionally version of the package to add a resource block for.
 
 ## Options:
 - `--dry-run`: If specified, the script will print the new formula to the console instead of writing it to the file.
@@ -17,5 +17,5 @@ python addresource.py [OPTIONS] FORMULA_PATH PACKAGE
 ## Example
 
 ```bash
-python addresource.py [OPTIONS] FORMULA_PATH PACKAGE
+python addresource.py requests==2.3.0
 ```
