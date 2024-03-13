@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "addresource"
-version = "0.0.11"
+version = "0.0.12"
 description = ""
 authors = ["Janekc <jan.schauz@googlemail.com>"]
 readme = "README.md"
