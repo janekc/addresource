@@ -34,7 +34,7 @@ def get_sha256_hash_from_link(sha256_link, package, package_version=None):
     return sha256_hash
 
 
-def get_latest_source_distribution_and_sha256_hash(package_name, package_version=None):
+def get_source_distribution_and_sha256_hash(package_name, package_version=None):
     # If a version is specified, use it
     if package_version:
         url = f"https://pypi.org/project/{package_name}/{package_version}/#files"
@@ -79,7 +79,7 @@ def add_resource_to_homebrew_formula(formula_path, package, dry_run):
         package_name = package
         package_version = None
 
-    latest_source_link, latest_sha256_hash = get_latest_source_distribution_and_sha256_hash(package_name, package_version)
+    latest_source_link, latest_sha256_hash = get_source_distribution_and_sha256_hash(package_name, package_version)
     if not latest_source_link:
         return
 
