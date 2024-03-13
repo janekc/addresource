@@ -63,12 +63,7 @@ def get_source_distribution_and_sha256_hash(package_name, package_version=None):
     return source_link, sha256_hash
 
 
-@click.command()
-@click.argument("formula-path", type=click.Path(exists=True))
-@click.argument("package", type=str)
-@click.option("--dry-run", is_flag=True, help="Print the new formula to the console instead of writing it to the file.")
-def add_resource_to_homebrew_formula(formula_path, package, dry_run):
-    """Add a resource to a Homebrew formula."""
+def add_package(formula_path, package, dry_run):
     # Split the package string by '=='
     parts = package.split('==')
 
@@ -86,25 +81,57 @@ def add_resource_to_homebrew_formula(formula_path, package, dry_run):
     with open(formula_path, 'r') as file:
         formula = file.read()
 
-    # Define the resource block
-    resource_block = f'  resource "{package_name}" do\n' \
-                     f'    url "{latest_source_link}"\n' \
-                     f'    sha256 "{latest_sha256_hash}"\n' \
-                     f'  end\n\n'
-
-    # Split the formula at 'def install'
-    parts = formula.split('def install', 1)
-
-    # Insert the resource block before 'def install'
-    new_formula = parts[0] + resource_block + 'def install' + parts[1]
-
-    if dry_run:
-        print("Dry run enabled. The following resource block would be added to the formula:\n")
-        print(resource_block)
+    # Check if a resource block for the package exists
+    if f'resource "{package_name}" do' in formula:
+        print(f"A resource block for {package_name} already exists.")
     else:
-        # Write the new formula to the file
-        with open(formula_path, 'w') as file:
-            file.write(new_formula)
-        print(f"Resource added to {formula_path}")
+        print(f"No resource block for {package_name} found. Adding one...")
+
+        # Define the resource block
+        resource_block = f'  resource "{package_name}" do\n' \
+                        f'    url "{latest_source_link}"\n' \
+                        f'    sha256 "{latest_sha256_hash}"\n' \
+                        f'  end\n\n'
+
+        # Split the formula at 'def install'
+        parts = formula.split('def install', 1)
+
+        # Insert the resource block before 'def install'
+        new_formula = parts[0] + resource_block + 'def install' + parts[1]
+
+        if dry_run:
+            print("Dry run enabled. The following resource block would be added to the formula:\n")
+            print(resource_block)
+        else:
+            # Write the new formula to the file
+            with open(formula_path, 'w') as file:
+                file.write(new_formula)
+            print(f"Resource added to {formula_path}")
+
+
+def add_requirements_file(formula_path, requirements_file, dry_run):
+    # Parse the requirements file
+    with open(requirements_file, 'r') as file:
+        requirements = file.readlines()
+        for requirement in requirements:
+            requirement = requirement.strip()
+            print(f"Adding resource for {requirement}...")
+            add_package(formula_path, requirement, dry_run)
+
+
+@click.command()
+@click.argument("formula-path", type=click.Path(exists=True))
+@click.option("--dry-run", is_flag=True, help="Print the new formula to the console instead of writing it to the file.")
+@click.option('--package', default=None, help='The name of the package to add.')
+@click.option('--requirements-file', type=click.Path(exists=True), default=None, help='The path to a requirements.txt file.')
+def add_resource_to_homebrew_formula(formula_path, package, requirements_file, dry_run):
+    """Add a resource to a Homebrew formula."""
+    if package:
+        add_package(formula_path, package, dry_run)
+    elif requirements_file:
+        add_requirements_file(formula_path, requirements_file, dry_run)
+    else:
+        print("You must specify either a package or a requirements file.")
+
 
 
