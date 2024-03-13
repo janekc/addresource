@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "addresource"
+version = "0.0.1"
+description = ""
+authors = ["Janekc <jan.schauz@googlemail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.3"
+click = "^8.1.7"
+pytest = "^8.1.1"
+
+[tool.poetry.scripts]
+addresource = "addresource.addresource:add_resource_to_homebrew_formula"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
