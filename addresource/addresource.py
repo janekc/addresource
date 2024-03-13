@@ -40,22 +40,27 @@ def get_latest_source_distribution_and_sha256_hash(package_name, package_version
         url = f"https://pypi.org/project/{package_name}/{package_version}/#files"
     else:
         url = f"https://pypi.org/project/{package_name}/#files"
-    
+
     soup = get_soup_from_url(url)
 
-    # Find all links that match the source distribution pattern
-    source_links = soup.find_all('a', href=re.compile(rf'{package_name}-.*\.tar\.gz$'))
+    #print(soup.text)
 
-    if not source_links:
-        print(f"No source distribution found for package: {package_name}")
-        return None
+    # Find the div with the class 'card file__card'
+    file_card_div = soup.find('div', class_='card file__card')
+    link_tag = file_card_div.find('a')
+    source_link = link_tag['href']
+
+    # Find the "view hashes" link inside the div
+    hashes_link_tag = file_card_div.find('a', string='view hashes')
+    hashes_link = hashes_link_tag['href']
+
+    if not source_link:
+        raise ValueError(f"No source distribution found for {package_name}! Check the package name and version.")
     
     # Find the "view hashes" link associated with the latest source distribution
-    latest_sha256_link = source_links[0].find_next_sibling('a', string='view hashes')['href']
-    latest_sha256_hash = get_sha256_hash_from_link(latest_sha256_link, package_name, package_version)
-    latest_source_link = source_links[0]['href']
+    sha256_hash = get_sha256_hash_from_link(hashes_link, package_name, package_version)
 
-    return latest_source_link, latest_sha256_hash
+    return source_link, sha256_hash
 
 
 @click.command()
